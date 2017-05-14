@@ -1,7 +1,10 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    min-width:320px;
+    width: auto !important;
 }
+
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
@@ -20,5 +23,64 @@
 input,
 select,
 textarea {
-    max-width: 280px;
+    max-width: 400px;
+}
+
+.red{
+    color:red;
+    }
+.form-area
+{
+    background-color: #FAFAFA;
+	padding: 10px 40px 60px;
+	margin: 10px 0px 60px;
+	border: 1px solid GREY;
+	}
+.form-group
+{
+    min-width:250px;
+}
+.contact-parent-container{
+    display:flex;
+    justify-content:center;
+}
+.contact-child-container{
+    flex-basis:70%;
+}
+.field-validation-error {
+    color: #b94a48;
+}
+ 
+.field-validation-valid {
+    display: none;
+}
+ 
+input.input-validation-error {
+    border: 1px solid #b94a48;
+}
+input.valid {
+    border: 1px solid #1fa501
+}
+ 
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+ 
+.validation-summary-errors {
+    color: #b94a48;
+}
+ 
+.validation-summary-valid {
+    display: none;
+}
+
+#result{
+    margin-top: 10px;
+}
+
+div#loading { display: none; }
+
+.send-button-container{
+    display: flex;
+    justify-content: flex-end;
 }
