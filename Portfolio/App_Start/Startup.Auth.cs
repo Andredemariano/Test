@@ -6,11 +6,16 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.Google;
 using Owin;
 using Portfolio.Models;
+using Microsoft.Owin.Security.OAuth;
+using Portfolio.Providers;
 
 namespace Portfolio
 {
     public partial class Startup
     {
+        public static OAuthAuthorizationServerOptions OAuthOptions { get; private set; }
+
+        public static string PublicClientId { get; private set; }
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -34,7 +39,23 @@ namespace Portfolio
                         validateInterval: TimeSpan.FromMinutes(30),
                         regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
                 }
-            });            
+            });
+
+            PublicClientId = "self";
+
+            OAuthOptions = new OAuthAuthorizationServerOptions
+            {
+                // устанавливает URL, по которому клиент будет получать токен
+                TokenEndpointPath = new PathString("/Token"),
+                // указывает на вышеопределенный провайдер авторизации
+                Provider = new ApplicationOAuthProvider(PublicClientId),
+                AuthorizeEndpointPath = new PathString("/api/Account/ExternalLogin"),
+                AccessTokenExpireTimeSpan = TimeSpan.FromDays(14),
+                AllowInsecureHttp = true
+            };
+            // включает в приложении функциональность токенов
+            app.UseOAuthBearerTokens(OAuthOptions);
+
             app.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
 
             // Enables the application to temporarily store user information when they are verifying the second factor in the two-factor authentication process.
