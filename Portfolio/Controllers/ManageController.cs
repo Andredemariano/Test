@@ -371,11 +371,11 @@ namespace Portfolio.Controllers
                 return user.PhoneNumber != null;
             }
             return false;
-        }
+		}
 
-        public enum ManageMessageId
-        {
-            AddPhoneSuccess,
+		public enum ManageMessageId
+		{
+			AddPhoneSuccess,
             ChangePasswordSuccess,
             SetTwoFactorSuccess,
             SetPasswordSuccess,

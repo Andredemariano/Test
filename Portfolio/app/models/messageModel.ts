@@ -4,4 +4,5 @@
     name: string;
     phone: string;
     text: string;
+    subject: string;
 }

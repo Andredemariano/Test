@@ -45,7 +45,9 @@ namespace Portfolio.Controllers
                     {
                         email = contactModel.Email,
                         name = contactModel.Name,
-                        text = contactModel.Messege
+                        text = contactModel.Messege,
+                        phone = contactModel.MobileNumber,
+                        subject = contactModel.Subject,
                     };
                     repository.AddMessage(msg);
                 }

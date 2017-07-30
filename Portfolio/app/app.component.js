@@ -11,16 +11,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@angular/core");
 const apiService_1 = require("./services/apiService");
+const messageModel_1 = require("./models/messageModel");
 let AppComponent = class AppComponent {
     constructor(apiService) {
         this.apiService = apiService;
         this.messages = [];
+        this.activeElementId = 0;
+        this.activeItem = new messageModel_1.Message();
+        this.testActive = "test data";
     }
     ;
     ngOnInit() {
         this.apiService.getMessages().subscribe((data) => this.messages = data.json());
+        this.testActive = "test data";
     }
     addItem(text, price) {
+    }
+    setActive(item) {
+        this.activeElementId = item.Id;
+        this.activeItem = item;
     }
     removeItem(message) {
         let index = this.messages.indexOf(message);
@@ -32,21 +41,16 @@ let AppComponent = class AppComponent {
 };
 AppComponent = __decorate([
     core_1.Component({
-        selector: 'purchase-app',
+        selector: 'my-app',
         providers: [apiService_1.ApiService],
         template: `<div class="page-header">
-        <h1> Список покупок </h1>
+    <h1>List of messages</h1>
     </div>
     <div class="panel">
         <div class="form-inline">
             <div class="form-group">
                 <div class="col-md-8">
-                    <input class="form-control" [(ngModel)]="text" placeholder = "Название" />
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-6">
-                    <input type="number" class="form-control" [(ngModel)]="price" placeholder="Цена" />
+                    <input class="form-control" [(ngModel)]="text" placeholder = "Find" />
                 </div>
             </div>
             <div class="form-group">
@@ -55,16 +59,16 @@ AppComponent = __decorate([
                 </div>
             </div>
         </div>
-        <table class="table table-striped">
+        <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Предмет</th>
-                    <th>Цена</th>
-                    <th>Куплено</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of messages">
+                <tr *ngFor="let item of messages" [ngClass]="{'active': activeElementId==item.Id}" (click)="setActive(item)">
                     <td>{{item.name}}</td>
                     <td>{{item.email}}</td>
                     <td>{{item.phone}}</td>
@@ -72,7 +76,8 @@ AppComponent = __decorate([
                 </tr>
             </tbody>
         </table>
-    </div>`
+    </div>
+    <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>`
     }),
     __metadata("design:paramtypes", [apiService_1.ApiService])
 ], AppComponent);

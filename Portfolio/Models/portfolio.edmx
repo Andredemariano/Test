@@ -14,6 +14,7 @@
           <Property Name="name" Type="nchar" MaxLength="20" />
           <Property Name="email" Type="nchar" MaxLength="30" Nullable="false" />
           <Property Name="phone" Type="nchar" MaxLength="20" />
+          <Property Name="subject" Type="nchar" MaxLength="30" />
         </EntityType>
         <EntityContainer Name="portfolioModelStoreContainer">
           <EntitySet Name="InfoMsg" EntityType="Self.InfoMsg" Schema="dbo" store:Type="Tables" />
@@ -31,6 +32,7 @@
           <Property Name="name" Type="String" MaxLength="20" FixedLength="true" Unicode="true" />
           <Property Name="email" Type="String" MaxLength="30" FixedLength="true" Unicode="true" Nullable="false" />
           <Property Name="phone" Type="String" MaxLength="20" FixedLength="true" Unicode="true" />
+          <Property Name="subject" Type="String" MaxLength="30" FixedLength="true" Unicode="true" />
         </EntityType>
         <EntityContainer Name="portfolioEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="InfoMsg" EntityType="Self.InfoMsg" />
@@ -44,6 +46,7 @@
           <EntitySetMapping Name="InfoMsg">
             <EntityTypeMapping TypeName="portfolioModel.InfoMsg">
               <MappingFragment StoreEntitySet="InfoMsg">
+                <ScalarProperty Name="subject" ColumnName="subject" />
                 <ScalarProperty Name="phone" ColumnName="phone" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
                 <ScalarProperty Name="text" ColumnName="text" />
