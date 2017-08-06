@@ -12,11 +12,13 @@ const forms_1 = require("@angular/forms");
 const http_1 = require("@angular/http");
 const app_component_1 = require("./app.component");
 const messageTextManager_1 = require("./components/messageTextManager");
+const ng_bootstrap_1 = require("ng-bootstrap"); // <-- import the module
+//PaginationModule.forRoot()
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     core_1.NgModule({
-        imports: [platform_browser_1.BrowserModule, forms_1.FormsModule, http_1.HttpModule],
+        imports: [platform_browser_1.BrowserModule, forms_1.FormsModule, http_1.HttpModule, ng_bootstrap_1.PaginationModule.forRoot()],
         declarations: [app_component_1.AppComponent, messageTextManager_1.MessageTextComponent],
         bootstrap: [app_component_1.AppComponent]
     })

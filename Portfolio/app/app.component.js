@@ -13,29 +13,46 @@ const core_1 = require("@angular/core");
 const apiService_1 = require("./services/apiService");
 const messageModel_1 = require("./models/messageModel");
 let AppComponent = class AppComponent {
-    constructor(apiService) {
+    constructor(apiService, cdRef) {
         this.apiService = apiService;
+        this.cdRef = cdRef;
         this.messages = [];
         this.activeElementId = 0;
         this.activeItem = new messageModel_1.Message();
-        this.testActive = "test data";
+        this.currentPage = 1;
+        this.itemsPerPage = 5;
+        this.pagedItems = [];
     }
     ;
     ngOnInit() {
-        this.apiService.getMessages().subscribe((data) => this.messages = data.json());
-        this.testActive = "test data";
+        this.apiService.getMessages().subscribe((data) => {
+            this.messages = data.json();
+            this.totalItems = this.messages.length;
+            this.pagedItems = this.messages.slice(1 * 5 - 5, this.itemsPerPage + 1 * 5 - 5);
+        });
     }
     addItem(text, price) {
+    }
+    iterate(element) {
+        return this.messages.indexOf(element) + 1;
+    }
+    pageChanged(event) {
+        this.pagedItems = this.messages.slice(event.page * 5 - 5, this.itemsPerPage + event.page * 5 - 5);
     }
     setActive(item) {
         this.activeElementId = item.Id;
         this.activeItem = item;
     }
+    //Todo fix bug with remove items, subscribe when changed message colelction -> change pages collection
     removeItem(message) {
         let index = this.messages.indexOf(message);
         if (index !== -1) {
             this.messages.splice(index, 1);
+            this.pagedItems = this.messages.slice(this.currentPage * 5 - 5, this.itemsPerPage + this.currentPage * 5 - 5);
             this.apiService.removeMessage(message.Id);
+            this.totalItems = this.messages.length;
+            //bug with crash when delete last item in last page
+            this.cdRef.detectChanges();
         }
     }
 };
@@ -53,11 +70,6 @@ AppComponent = __decorate([
                     <input class="form-control" [(ngModel)]="text" placeholder = "Find" />
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-8">
-                    <button class="btn btn-default" (click)="addItem(text, price)">Добавить</button>
-                </div>
-            </div>
         </div>
         <table class="table table-hover">
             <thead>
@@ -68,7 +80,8 @@ AppComponent = __decorate([
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of messages" [ngClass]="{'active': activeElementId==item.Id}" (click)="setActive(item)">
+                <tr *ngFor="let item of pagedItems" [ngClass]="{'active': activeElementId==item.Id}" (click)="setActive(item)">
+                    <td>{{iterate(item)}}</td>
                     <td>{{item.name}}</td>
                     <td>{{item.email}}</td>
                     <td>{{item.phone}}</td>
@@ -77,9 +90,10 @@ AppComponent = __decorate([
             </tbody>
         </table>
     </div>
-    <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>`
+    <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>
+    <pagination [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [(ngModel)]="currentPage" (pageChanged) = "pageChanged($event)"></pagination>`
     }),
-    __metadata("design:paramtypes", [apiService_1.ApiService])
+    __metadata("design:paramtypes", [apiService_1.ApiService, core_1.ChangeDetectorRef])
 ], AppComponent);
 exports.AppComponent = AppComponent;
 //# sourceMappingURL=app.component.js.map

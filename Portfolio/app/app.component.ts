@@ -1,4 +1,4 @@
-﻿import { Input, Component } from '@angular/core';
+﻿import { Input, Component, ChangeDetectorRef } from '@angular/core';
 import { Response } from '@angular/http';
 import { ApiService } from './services/apiService';
 import { Message } from './models/messageModel';
@@ -16,11 +16,6 @@ import { Message } from './models/messageModel';
                     <input class="form-control" [(ngModel)]="text" placeholder = "Find" />
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-8">
-                    <button class="btn btn-default" (click)="addItem(text, price)">Добавить</button>
-                </div>
-            </div>
         </div>
         <table class="table table-hover">
             <thead>
@@ -31,7 +26,8 @@ import { Message } from './models/messageModel';
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of messages" [ngClass]="{'active': activeElementId==item.Id}" (click)="setActive(item)">
+                <tr *ngFor="let item of pagedItems" [ngClass]="{'active': activeElementId==item.Id}" (click)="setActive(item)">
+                    <td>{{iterate(item)}}</td>
                     <td>{{item.name}}</td>
                     <td>{{item.email}}</td>
                     <td>{{item.phone}}</td>
@@ -40,24 +36,40 @@ import { Message } from './models/messageModel';
             </tbody>
         </table>
     </div>
-    <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>`
+    <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>
+    <pagination [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [(ngModel)]="currentPage" (pageChanged) = "pageChanged($event)"></pagination>`
 
 })
 
 export class AppComponent {
-    constructor(private apiService: ApiService) { };
+    constructor(private apiService: ApiService, private cdRef: ChangeDetectorRef) { };
     messages: Message[] = [];
     activeElementId: number = 0;
     activeItem: Message = new Message();
-    testActive = "test data";
+
+    public totalItems: number;
+    public currentPage: number = 1;
+    public itemsPerPage: number = 5;
+    public pagedItems: Message[] = [];
 
     ngOnInit() {
-        this.apiService.getMessages().subscribe((data: Response) => this.messages = data.json());
-        this.testActive = "test data";
+        this.apiService.getMessages().subscribe((data: Response) => {
+            this.messages = data.json();
+            this.totalItems = this.messages.length;
+            this.pagedItems = this.messages.slice(1 * 5 - 5, this.itemsPerPage + 1 * 5 - 5);
+        });
     }
 
     addItem(text: string, price: number): void {
 
+    }
+
+    public iterate(element: any): number {
+        return this.messages.indexOf(element) + 1;
+    }
+
+    public pageChanged(event: any): void {
+        this.pagedItems = this.messages.slice(event.page * 5 - 5, this.itemsPerPage + event.page * 5 - 5);
     }
 
     setActive(item: Message): void {
@@ -65,11 +77,16 @@ export class AppComponent {
         this.activeItem = item;
     }
 
+    //Todo fix bug with remove items, subscribe when changed message colelction -> change pages collection
     removeItem(message: Message): void {
         let index: number = this.messages.indexOf(message);
         if (index !== -1) {
             this.messages.splice(index, 1);
+            this.pagedItems = this.messages.slice(this.currentPage * 5 - 5, this.itemsPerPage + this.currentPage * 5 - 5);
             this.apiService.removeMessage(message.Id);
+            this.totalItems = this.messages.length;
+            //bug with crash when delete last item in last page
+            this.cdRef.detectChanges();
         }
     }
 }
