@@ -1,4 +1,4 @@
-﻿import { Input, Component, ChangeDetectorRef } from '@angular/core';
+﻿import { Input, Component, ChangeDetectorRef, IterableDiffers, DoCheck } from '@angular/core';
 import { Response } from '@angular/http';
 import { ApiService } from './services/apiService';
 import { Message } from './models/messageModel';
@@ -41,8 +41,10 @@ import { Message } from './models/messageModel';
 
 })
 
-export class AppComponent {
-    constructor(private apiService: ApiService, private cdRef: ChangeDetectorRef) { };
+export class AppComponent implements DoCheck {
+    constructor(private apiService: ApiService, private cdRef: ChangeDetectorRef, differs: IterableDiffers) {
+        this.differ = differs.find([]).create(null);
+    };
     messages: Message[] = [];
     activeElementId: number = 0;
     activeItem: Message = new Message();
@@ -51,17 +53,32 @@ export class AppComponent {
     public currentPage: number = 1;
     public itemsPerPage: number = 5;
     public pagedItems: Message[] = [];
+    differ: any;
 
     ngOnInit() {
         this.apiService.getMessages().subscribe((data: Response) => {
             this.messages = data.json();
-            this.totalItems = this.messages.length;
-            this.pagedItems = this.messages.slice(1 * 5 - 5, this.itemsPerPage + 1 * 5 - 5);
         });
+
     }
 
-    addItem(text: string, price: number): void {
+    ngDoCheck() {
+        var changes = this.differ.diff(this.messages);
+        if (changes) {
+            this.changePageItems();
+        }
+    }
 
+    public removeItem(message: Message): void {
+        let index: number = this.messages.indexOf(message);
+        if (index !== -1) {
+            this.messages.splice(index, 1);
+            this.apiService.removeMessage(message.Id);
+
+            //bug with crash when delete last item in last page
+            this.cdRef.detectChanges();
+
+        }
     }
 
     public iterate(element: any): number {
@@ -69,24 +86,21 @@ export class AppComponent {
     }
 
     public pageChanged(event: any): void {
-        this.pagedItems = this.messages.slice(event.page * 5 - 5, this.itemsPerPage + event.page * 5 - 5);
+        this.currentPage = event.page;
+        this.changePageItems();
     }
 
-    setActive(item: Message): void {
+ 
+    public setActive(item: Message): void {
         this.activeElementId = item.Id;
         this.activeItem = item;
     }
 
-    //Todo fix bug with remove items, subscribe when changed message colelction -> change pages collection
-    removeItem(message: Message): void {
-        let index: number = this.messages.indexOf(message);
-        if (index !== -1) {
-            this.messages.splice(index, 1);
-            this.pagedItems = this.messages.slice(this.currentPage * 5 - 5, this.itemsPerPage + this.currentPage * 5 - 5);
-            this.apiService.removeMessage(message.Id);
-            this.totalItems = this.messages.length;
-            //bug with crash when delete last item in last page
-            this.cdRef.detectChanges();
-        }
+    private changePageItems() {
+        this.pagedItems = this.messages.slice((this.currentPage - 1) * this.itemsPerPage, (this.currentPage - 1) * this.itemsPerPage + this.itemsPerPage);
+        this.totalItems = this.messages.length;
+        this.cdRef.detectChanges();
     }
+
+   
 }

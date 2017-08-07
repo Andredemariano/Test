@@ -13,7 +13,7 @@ const core_1 = require("@angular/core");
 const apiService_1 = require("./services/apiService");
 const messageModel_1 = require("./models/messageModel");
 let AppComponent = class AppComponent {
-    constructor(apiService, cdRef) {
+    constructor(apiService, cdRef, differs) {
         this.apiService = apiService;
         this.cdRef = cdRef;
         this.messages = [];
@@ -22,38 +22,44 @@ let AppComponent = class AppComponent {
         this.currentPage = 1;
         this.itemsPerPage = 5;
         this.pagedItems = [];
+        this.differ = differs.find([]).create(null);
     }
     ;
     ngOnInit() {
         this.apiService.getMessages().subscribe((data) => {
             this.messages = data.json();
-            this.totalItems = this.messages.length;
-            this.pagedItems = this.messages.slice(1 * 5 - 5, this.itemsPerPage + 1 * 5 - 5);
         });
     }
-    addItem(text, price) {
+    ngDoCheck() {
+        var changes = this.differ.diff(this.messages);
+        if (changes) {
+            this.changePageItems();
+        }
+    }
+    removeItem(message) {
+        let index = this.messages.indexOf(message);
+        if (index !== -1) {
+            this.messages.splice(index, 1);
+            this.apiService.removeMessage(message.Id);
+            //bug with crash when delete last item in last page
+            this.cdRef.detectChanges();
+        }
     }
     iterate(element) {
         return this.messages.indexOf(element) + 1;
     }
     pageChanged(event) {
-        this.pagedItems = this.messages.slice(event.page * 5 - 5, this.itemsPerPage + event.page * 5 - 5);
+        this.currentPage = event.page;
+        this.changePageItems();
     }
     setActive(item) {
         this.activeElementId = item.Id;
         this.activeItem = item;
     }
-    //Todo fix bug with remove items, subscribe when changed message colelction -> change pages collection
-    removeItem(message) {
-        let index = this.messages.indexOf(message);
-        if (index !== -1) {
-            this.messages.splice(index, 1);
-            this.pagedItems = this.messages.slice(this.currentPage * 5 - 5, this.itemsPerPage + this.currentPage * 5 - 5);
-            this.apiService.removeMessage(message.Id);
-            this.totalItems = this.messages.length;
-            //bug with crash when delete last item in last page
-            this.cdRef.detectChanges();
-        }
+    changePageItems() {
+        this.pagedItems = this.messages.slice((this.currentPage - 1) * this.itemsPerPage, (this.currentPage - 1) * this.itemsPerPage + this.itemsPerPage);
+        this.totalItems = this.messages.length;
+        this.cdRef.detectChanges();
     }
 };
 AppComponent = __decorate([
@@ -93,7 +99,7 @@ AppComponent = __decorate([
     <message-text [text]="activeItem.text" [subject]="activeItem.subject"></message-text>
     <pagination [totalItems]="totalItems" [itemsPerPage]="itemsPerPage" [(ngModel)]="currentPage" (pageChanged) = "pageChanged($event)"></pagination>`
     }),
-    __metadata("design:paramtypes", [apiService_1.ApiService, core_1.ChangeDetectorRef])
+    __metadata("design:paramtypes", [apiService_1.ApiService, core_1.ChangeDetectorRef, core_1.IterableDiffers])
 ], AppComponent);
 exports.AppComponent = AppComponent;
 //# sourceMappingURL=app.component.js.map
