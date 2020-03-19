@@ -3,11 +3,9 @@
 	
   <!-- tokenise this target to bring in which environment you want to transform for -->
 	<Target Name="Run">
-		<XmlMassUpdate 
-			ContentFile="web.config"
-			ContentRoot="configuration"
-			SubstitutionsFile="web.testing.config"
-			SubstitutionsRoot="configuration"
-			MergedFile="web.config" />
+		<XmlUpdate
+		  XmlFileName="web.config"
+		  XPath="//configuration/appSettings/add/@key"
+		  Value="$(apex_version)" />
 	</Target>
  </Project>
