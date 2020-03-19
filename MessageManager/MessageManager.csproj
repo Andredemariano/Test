@@ -122,6 +122,7 @@
     <AppDesigner Include="Properties\" />
     <None Include="web.config" />
     <None Include="web.testing.config" />
+    <None Include="xmlmassupdate.build" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
