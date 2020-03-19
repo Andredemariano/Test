@@ -1,0 +1,13 @@
+<Project DefaultTargets="Run" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+	
+  <!-- tokenise this target to bring in which environment you want to transform for -->
+	<Target Name="Run">
+		<XmlMassUpdate 
+			ContentFile="web.config"
+			ContentRoot="configuration"
+			SubstitutionsFile="web.testing.config"
+			SubstitutionsRoot="configuration"
+			MergedFile="web.config" />
+	</Target>
+ </Project>
