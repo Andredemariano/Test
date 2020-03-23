@@ -1,5 +1,6 @@
 ﻿namespace MessageManager.Model
 {
+
     public class DataItem
     {
         public string Title
